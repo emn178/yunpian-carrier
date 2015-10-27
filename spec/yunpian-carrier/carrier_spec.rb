@@ -3,11 +3,14 @@ require 'spec_helper'
 describe YunpianCarrier::Base do
   before { 
     @posts = []
-    allow_any_instance_of(Net::HTTP).to receive(:request) do |request, post|
-      @posts << post
-      OpenStruct.new(
-        :body => '{"code": 0}'
-      )
+    allow(Net::HTTP).to receive(:start) do |*args, &block|
+      allow(self).to receive(:request) do |post|
+        @posts << post
+        OpenStruct.new(
+          :body => '{"code": 0}'
+        )
+      end
+      block.call self
     end
     sms.deliver_now
   }
